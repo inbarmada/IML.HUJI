@@ -53,14 +53,6 @@ def test_univariate_gaussian():
     )
     pdf_plot.show()
 
-    n = np.array(
-        [1, 5, 2, 3, 8, -4, -2, 5, 1, 10, -10, 4, 5, 2, 7, 1, 1, 3, 2, -1, -3,
-         1, -4, 1, 2, 1,
-         -4, -4, 1, 3, 2, 6, -6, 8, 3, -6, 4, 1, -2, 3, 1, 4, 1, 4, -2, 3, -1,
-         0, 3, 5, 0, -2])
-    print('hdskgf ', uv.log_likelihood(1, 1, n))
-    print('hdskgf ', uv.log_likelihood(10, 1, n))
-
 
 def test_multivariate_gaussian():
     # Question 4 - Draw samples and print fitted model
