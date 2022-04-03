@@ -3,7 +3,7 @@ from typing import NoReturn
 from ...base import BaseEstimator
 import numpy as np
 from numpy.linalg import pinv
-
+from ...metrics import loss_functions
 
 class LinearRegression(BaseEstimator):
     """
@@ -65,7 +65,12 @@ class LinearRegression(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        raise NotImplementedError()
+        # Add column of ones to X if intercept
+        if self.include_intercept_:
+            X0 = np.ones(np.shape(X)[0], 1)
+            X = np.hstack((X0, X))
+
+        y = np.matmul(X, self.coefs_)
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -84,4 +89,6 @@ class LinearRegression(BaseEstimator):
         loss : float
             Performance under MSE loss function
         """
-        raise NotImplementedError()
+        self._fit(X, y)
+        y_pred = self._predict(X)
+        return loss_functions.mean_square_error(y, y_pred)

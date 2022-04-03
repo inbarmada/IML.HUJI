@@ -7,6 +7,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import plotly.io as pio
+
 pio.templates.default = "simple_white"
 
 
@@ -23,10 +24,24 @@ def load_data(filename: str):
     Design matrix and response vector (prices) - either as a single
     DataFrame or a Tuple[DataFrame, Series]
     """
-    raise NotImplementedError()
+    full_data = pd.read_csv(filename).drop_duplicates()
+    features = full_data[["date",
+                          "price", "bedrooms", "bathrooms", "floors",
+                          "sqft_living", "sqft_lot",
+                          "waterfront", "view",
+                          "condition", "grade",
+                          "sqft_above", "sqft_basement",
+                          "yr_built", "yr_renovated",
+                          "zipcode",  # "lat", "long",
+                          "sqft_living15", "sqft_lot15"]]
+    features.loc[:, "floors"] = features.loc[:, "floors"].astype(int)
+    pd.get_dummies(data=features, columns=["zipcode"], drop_first=True)
+
+    # print(features["zipcode"].nunique())
 
 
-def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") -> NoReturn:
+def feature_evaluation(X: pd.DataFrame, y: pd.Series,
+                       output_path: str = ".") -> NoReturn:
     """
     Create scatter plot between each feature and the response.
         - Plot title specifies feature name
@@ -43,13 +58,13 @@ def feature_evaluation(X: pd.DataFrame, y: pd.Series, output_path: str = ".") ->
     output_path: str (default ".")
         Path to folder in which plots are saved
     """
-    raise NotImplementedError()
+
 
 
 if __name__ == '__main__':
     np.random.seed(0)
     # Question 1 - Load and preprocessing of housing prices dataset
-    raise NotImplementedError()
+    load_data("..\datasets\house_prices.csv")
 
     # Question 2 - Feature evaluation with respect to response
     raise NotImplementedError()

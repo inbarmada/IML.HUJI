@@ -1,0 +1,5 @@
+- h_booking_id, origin_country_code is not relevant
+- possibly divide dates and time to different variables
+- add column for difference between booking and checkin
+- IMPORTANT : Switch words into numbers
+-  - use dummies? (which divide it into multiple columns) or make it into 1, 2, 3

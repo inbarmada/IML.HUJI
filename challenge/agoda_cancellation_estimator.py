@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import NoReturn
 from IMLearn.base import BaseEstimator
+from sklearn.linear_model import LogisticRegression
 import numpy as np
 
 
@@ -39,7 +40,8 @@ class AgodaCancellationEstimator(BaseEstimator):
         -----
 
         """
-        pass
+        self.model_logReg = LogisticRegression()
+        self.model_logReg.fit(X, y)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -55,7 +57,7 @@ class AgodaCancellationEstimator(BaseEstimator):
         responses : ndarray of shape (n_samples, )
             Predicted responses of given samples
         """
-        return np.zeros(X.shape[0])
+        pass
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -74,4 +76,5 @@ class AgodaCancellationEstimator(BaseEstimator):
         loss : float
             Performance under loss function
         """
-        pass
+        score = self.model_logReg.score(X, y)
+        return score
