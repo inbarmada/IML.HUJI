@@ -18,7 +18,7 @@ def mean_square_error(y_true: np.ndarray, y_pred: np.ndarray) -> float:
     """
     y_diff = y_true - y_pred
     y_diff_squared = np.power(y_diff, 2)
-    error = sum(y_diff_squared) / len(y_diff_squared)
+    error = np.average(y_diff_squared)
     return error
 
 

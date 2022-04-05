@@ -4,6 +4,7 @@ from ...base import BaseEstimator
 import numpy as np
 from numpy.linalg import pinv
 from ...metrics import loss_functions
+import plotly.graph_objects as go
 
 class LinearRegression(BaseEstimator):
     """
@@ -49,7 +50,11 @@ class LinearRegression(BaseEstimator):
         -----
         Fits model with or without an intercept depending on value of `self.include_intercept_`
         """
-        raise NotImplementedError()
+        if self.include_intercept_:
+            X = np.c_[X, np.ones(len(X))]
+
+        X_pinv = np.linalg.pinv(X)
+        self.coefs_ = np.matmul(X_pinv, y)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -67,12 +72,12 @@ class LinearRegression(BaseEstimator):
         """
         # Add column of ones to X if intercept
         if self.include_intercept_:
-            X0 = np.ones(np.shape(X)[0], 1)
-            X = np.hstack((X0, X))
+            X = np.c_[X, np.ones(len(X))]
 
         y = np.matmul(X, self.coefs_)
+        return y
 
-    def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
+    def _loss(self, X: np.ndarray, y: np.ndarray, include_analysis=False) -> float:
         """
         Evaluate performance under MSE loss function
 
@@ -89,6 +94,29 @@ class LinearRegression(BaseEstimator):
         loss : float
             Performance under MSE loss function
         """
-        self._fit(X, y)
-        y_pred = self._predict(X)
-        return loss_functions.mean_square_error(y, y_pred)
+        y_predict = self._predict(X)
+        if include_analysis:
+            self.loss_analysis(y, y_predict)
+        return loss_functions.mean_square_error(y, y_predict)
+
+    def loss_analysis(self, y_true, y_pred):
+        pearsons_corr = (np.cov(y_pred, y_true)[0, 1] /
+                         (np.std(y_pred) * np.std(y_true)))
+
+        plot = go.Figure(data=[go.Scatter(
+            x=y_true,
+            y=y_pred,
+            mode='markers',
+            marker_color='rgba(199, 10, 165, .9)')
+        ])
+
+        plot.update_layout(
+            title="true vs pred " + str(pearsons_corr),
+            xaxis_title="y_true",
+            yaxis_title="y_pred",
+        )
+        plot.show()
+
+    def fit_predict_loss(self, train_X, train_y, test_X, test_y, include_analysis=False):
+        self._fit(train_X, train_y)
+        return self._loss(test_X, test_y, include_analysis)

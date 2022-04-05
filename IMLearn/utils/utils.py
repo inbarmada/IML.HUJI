@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .25) \
+def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .75) \
         -> Tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
     """
     Split given sample to a training- and testing sample
@@ -34,10 +34,26 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .2
 
     """
 
-    train_X, test_X, train_y, test_y = train_test_split(X, y, test_size=0.3, random_state=42)
-    # train_y = y
-    # test_X = X
-    # test_y = y
+    # Join X and y
+    df = X.copy()
+    df['labels'] = y.copy()
+
+    # Shuffle df
+    df = df.sample(frac=1).reset_index(drop=True)
+
+    # Number in train
+    num_in_train = int(train_proportion * len(df))
+
+    # Split to train and test
+    train = df[:num_in_train]
+    test = df[num_in_train:]
+
+    # Split to X and y
+    train_X = train[X.columns]
+    train_y = train['labels']
+
+    test_X = test[X.columns]
+    test_y = test['labels']
 
     return train_X, train_y, test_X, test_y
 
