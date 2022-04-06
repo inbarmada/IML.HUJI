@@ -26,7 +26,7 @@ def load_data(filename: str):
     """
     full_data = pd.read_csv(filename).drop_duplicates().dropna()
     full_data = full_data[full_data["price"] > 0]
-    features = full_data[["date",
+    features = full_data[[#"date",
                           "bedrooms", "bathrooms", "floors",
                           "sqft_living", "sqft_lot",
                           "waterfront", "view",
@@ -42,7 +42,7 @@ def load_data(filename: str):
     # features.loc[:, "months_since_2014"] = \
     #     (pd.DatetimeIndex(features["date"]).year - 2014) * 12 + \
     #     pd.DatetimeIndex(features["date"]).month
-    features = features.drop(columns=["date"])
+    # features = features.drop(columns=["date"])
 
     features.loc[:, "floors"] = features.loc[:, "floors"].astype(int)
 
@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
     p_loss_std = np.zeros(91)
     p_loss = np.zeros(91)
-    for p in range(10, 100):
+    for p in range(10, 101):
         total_loss = np.zeros(10)
         for i in range(10):
             # Get sample from training data

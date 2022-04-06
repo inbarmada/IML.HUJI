@@ -45,8 +45,8 @@ def split_train_test(X: pd.DataFrame, y: pd.Series, train_proportion: float = .7
     num_in_train = int(train_proportion * len(df))
 
     # Split to train and test
-    train = df[:num_in_train]
-    test = df[num_in_train:]
+    train = df.iloc[:num_in_train]
+    test = df.iloc[num_in_train:]
 
     # Split to X and y
     train_X = train[X.columns]
