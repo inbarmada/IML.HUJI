@@ -69,17 +69,39 @@ def compare_gaussian_classifiers():
     for f in ["gaussian1.npy", "gaussian2.npy"]:
         # Load dataset
         X, y = load_dataset(f)
+        # print(y)
 
         # Fit models and predict over training set
-        raise NotImplementedError()
-
+        lda = LDA()
+        lda.fit(X, y)
+        y_lda = lda.predict(X)
+        print(lda.loss(X, y))
+        print(lda.likelihood(X))
+        gnb = GaussianNaiveBayes()
+        gnb.fit(X, y)
+        y_gnb = gnb.predict(X)
+        print(gnb.loss(X, y))
+        print(gnb.likelihood(X))
         # Plot a figure with two suplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
-        from IMLearn.metrics import accuracy
-        raise NotImplementedError()
+        # from IMLearn.metrics import accuracy
+
+        fig = make_subplots(rows=1, cols=2, start_cell="bottom-left",
+              subplot_titles=("LDA: Accuracy " + str(1 - lda.loss(X, y)),
+                              "GNB: Accuracy " + str(1 - gnb.loss(X, y))))
+        fig.add_trace(go.Scatter(
+            x=X[:, 0], y=X[:, 1],
+            marker=dict(color=y_lda, colorscale="Viridis"),
+            mode="markers", marker_symbol=y), row=1, col=1)
+        fig.add_trace(go.Scatter(
+            x=X[:, 0], y=X[:, 1],
+            marker=dict(color=y_gnb, colorscale="Viridis"),
+            mode="markers", marker_symbol=y), row=1, col=2)
+
+        fig.show()
 
 
 if __name__ == '__main__':
     np.random.seed(0)
-    run_perceptron()
+    # run_perceptron()
     compare_gaussian_classifiers()
