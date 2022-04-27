@@ -1,3 +1,5 @@
+from math import atan2, pi
+
 from IMLearn.learners.classifiers import Perceptron, LDA, GaussianNaiveBayes
 import numpy as np
 from typing import Tuple
@@ -30,6 +32,29 @@ def load_dataset(filename: str) -> Tuple[np.ndarray, np.ndarray]:
     data = np.load("../datasets/" + filename)
     return data[:, :2], data[:, 2]
 
+def get_ellipse(mu: np.ndarray, cov: np.ndarray):
+    """
+    Draw an ellipse centered at given location and according to specified covariance matrix
+
+    Parameters
+    ----------
+    mu : ndarray of shape (2,)
+        Center of ellipse
+
+    cov: ndarray of shape (2,2)
+        Covariance of Gaussian
+
+    Returns
+    -------
+        scatter: A plotly trace object of the ellipse
+    """
+    l1, l2 = tuple(np.linalg.eigvalsh(cov)[::-1])
+    theta = atan2(l1 - cov[0, 0], cov[0, 1]) if cov[0, 1] != 0 else (np.pi / 2 if cov[0, 0] < cov[1, 1] else 0)
+    t = np.linspace(0, 2 * pi, 100)
+    xs = (l1 * np.cos(theta) * np.cos(t)) - (l2 * np.sin(theta) * np.sin(t))
+    ys = (l1 * np.sin(theta) * np.cos(t)) + (l2 * np.cos(theta) * np.sin(t))
+
+    return go.Scatter(x=mu[0] + xs, y=mu[1] + ys, mode="lines", marker_color="black")
 
 def run_perceptron():
     """
@@ -69,19 +94,15 @@ def compare_gaussian_classifiers():
     for f in ["gaussian1.npy", "gaussian2.npy"]:
         # Load dataset
         X, y = load_dataset(f)
-        # print(y)
 
         # Fit models and predict over training set
         lda = LDA()
         lda.fit(X, y)
         y_lda = lda.predict(X)
-        print(lda.loss(X, y))
-        print(lda.likelihood(X))
         gnb = GaussianNaiveBayes()
         gnb.fit(X, y)
         y_gnb = gnb.predict(X)
-        print(gnb.loss(X, y))
-        print(gnb.likelihood(X))
+
         # Plot a figure with two suplots, showing the Gaussian Naive Bayes predictions on the left and LDA predictions
         # on the right. Plot title should specify dataset used and subplot titles should specify algorithm and accuracy
         # from IMLearn.metrics import accuracy
@@ -94,14 +115,29 @@ def compare_gaussian_classifiers():
             marker=dict(color=y_lda, colorscale="Viridis"),
             mode="markers", marker_symbol=y), row=1, col=1)
         fig.add_trace(go.Scatter(
+            x=lda.mu_[:, 0], y=lda.mu_[:, 1],
+            mode="markers", marker_symbol=4, marker_size=10,
+            marker_color="black"), row=1, col=1)
+        for i in range(3):
+            fig.add_trace(get_ellipse(lda.mu_[i], lda.cov_), row=1, col=1)
+
+
+        fig.add_trace(go.Scatter(
             x=X[:, 0], y=X[:, 1],
             marker=dict(color=y_gnb, colorscale="Viridis"),
             mode="markers", marker_symbol=y), row=1, col=2)
+        fig.add_trace(go.Scatter(
+            x=gnb.mu_[:, 0], y=gnb.mu_[:, 1],
+            mode="markers", marker_symbol=4, marker_size=10,
+            marker_color="black"), row=1, col=2)
+        for i in range(3):
+            fig.add_trace(get_ellipse(gnb.mu_[i], np.diag(gnb.cov_[i])), row=1, col=2)
 
+        fig.update_layout(showlegend=False, title=f + " Graphs")
         fig.show()
 
 
 if __name__ == '__main__':
     np.random.seed(0)
-    # run_perceptron()
+    run_perceptron()
     compare_gaussian_classifiers()
