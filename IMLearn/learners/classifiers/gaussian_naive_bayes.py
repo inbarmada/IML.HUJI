@@ -48,13 +48,13 @@ class GaussianNaiveBayes(BaseEstimator):
         self.mu_ = np.zeros((len(self.classes_), X.shape[1]))
         self.pi_ = np.zeros(len(self.classes_))
         self.cov_ = np.zeros((len(self.classes_), X.shape[1]))
-        for i in range(len(self.classes_)):
-            X_i = X[y == self.classes_[i]]
-            self.mu_[i] = np.mean(X_i, axis=0)
-            self.pi_[i] = X_i.shape[0] / X.shape[0]
-            X_i -= self.mu_[i]
-            X_i = np.power(X_i, 2)
-            self.cov_[i] = np.sum(X_i, axis=0) / (X_i.shape[0] - 1)
+        for k in range(len(self.classes_)):
+            X_k = X[y == self.classes_[k]]
+            self.mu_[k] = np.mean(X_k, axis=0)
+            self.pi_[k] = X_k.shape[0] / X.shape[0]
+            X_k_diff_squared = np.power(X_k - self.mu_[k], 2)
+            self.cov_[k] = np.sum(X_k_diff_squared, axis=0) / \
+                           (X_k_diff_squared.shape[0] - 1)
 
     def _predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -93,12 +93,15 @@ class GaussianNaiveBayes(BaseEstimator):
 
         likelihood = np.zeros((X.shape[0], len(self.classes_)))
         for i in range(len(self.classes_)):
-            uv = UnivariateGaussian()
-            prob = uv.get_pdf(X, self.mu_[i], self.cov_[i])
-            likelihood[:, i] = np.multiply(prob[:, 0], prob[:, 1])
+            cov = self.cov_[i]
+            mu = self.mu_[i]
 
+            factor = (1 / np.sqrt((2 * np.pi) ** len(mu) * np.prod(cov)))
+            first_product = np.matmul(np.power(X-mu, 2), 1 / cov)
+            pdfs = np.exp(-1 / 2 * first_product)
+
+            likelihood[:, i] = pdfs * factor * self.pi_[i]
         return likelihood
-
 
     def _loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """

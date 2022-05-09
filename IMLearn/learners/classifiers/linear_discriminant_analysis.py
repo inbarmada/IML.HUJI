@@ -119,7 +119,7 @@ class LDA(BaseEstimator):
             X_sigma_x = np.mean(X_sigma_x, axis=0)
             pdfs = np.exp(-1 / 2 * X_sigma_x)
 
-            likelihood[:, i] = pdfs * factor
+            likelihood[:, i] = pdfs * factor * self.pi_[i]
 
         return likelihood
 
