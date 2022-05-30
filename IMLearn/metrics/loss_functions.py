@@ -42,7 +42,7 @@ def misclassification_error(y_true: np.ndarray, y_pred: np.ndarray, normalize: b
     y_diff = y_true - y_pred
     error = np.count_nonzero(y_diff)
     if normalize:
-        return error / y_true.shape[0]
+        return error / len(y_true)
     else:
         return error
 

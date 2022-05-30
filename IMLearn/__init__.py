@@ -1,6 +1,6 @@
 from .base import *
 
 __all__ = ["BaseEstimator",
-           "BaseDimReducer",
+           # "BaseDimReducer",
            "learners",
            "metrics"]
